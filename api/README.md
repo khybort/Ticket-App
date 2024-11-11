@@ -5,6 +5,7 @@ This is the backend API for our application, built with Go. It provides the nece
 
 ## Prerequisites
 - Go 1.23
+- GORMv1.25.12
 - PostgreSQL
 
 ## Project Summary:
@@ -16,6 +17,7 @@ The project includes a Makefile for building, testing, and running the API.
 ## Features
 - Go-based backend API
 - RESTful endpoint design
+- GORM configuration
 - OpenAPI support
 - Environment-specific configurations
 - Production-ready setup

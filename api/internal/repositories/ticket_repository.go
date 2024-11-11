@@ -2,92 +2,92 @@ package repositories
 
 import (
 	"api/internal/domain"
-	"database/sql"
+	"api/internal/database"
 	"fmt"
 	"log"
+
+	"gorm.io/gorm"
 )
 
 type TicketRepository struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewTicketRepo(db *sql.DB) *TicketRepository {
+func NewTicketRepo(db *gorm.DB) *TicketRepository {
 	return &TicketRepository{DB: db}
 }
 
 func (r *TicketRepository) GetAllTickets() ([]domain.Ticket, error) {
-	rows, err := r.DB.Query(`SELECT id, name, "desc", allocation FROM tickets`)
-	if err != nil {
+	var ticketModels []database.Ticket
+	if err := r.DB.Find(&ticketModels).Error; err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	var tickets []domain.Ticket
-	for rows.Next() {
-		var ticket domain.Ticket
-		if err := rows.Scan(&ticket.ID, &ticket.Name, &ticket.Desc, &ticket.Allocation); err != nil {
-			return nil, err
-		}
-		tickets = append(tickets, ticket)
+	for _, ticketModel := range ticketModels {
+		tickets = append(tickets, domain.Ticket{
+			ID:         ticketModel.ID,
+			Name:       ticketModel.Name,
+			Desc:       ticketModel.Desc,
+			Allocation: ticketModel.Allocation,
+		})
 	}
-	fmt.Print("Ticket: ", tickets)
 
+	log.Print("Tickets: ", tickets)
 	return tickets, nil
 }
 
 func (r *TicketRepository) GetTicket(id int) (domain.Ticket, error) {
-	query := `SELECT id, name, "desc", allocation FROM tickets WHERE id = $1`
-	row := r.DB.QueryRow(query, id)
-
-	var ticket domain.Ticket
-
-	err := row.Scan(&ticket.ID, &ticket.Name, &ticket.Desc, &ticket.Allocation)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	var ticketModel database.Ticket
+	if err := r.DB.First(&ticketModel, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
 			return domain.Ticket{}, fmt.Errorf("ticket with id %d not found", id)
 		}
-		log.Printf("Error scanning ticket: %v", err)
+		log.Printf("Error retrieving ticket: %v", err)
 		return domain.Ticket{}, err
+	}
+	ticket := domain.Ticket{
+		ID:         ticketModel.ID,
+		Name:       ticketModel.Name,
+		Desc:       ticketModel.Desc,
+		Allocation: ticketModel.Allocation,
 	}
 	return ticket, nil
 }
 
 func (r *TicketRepository) CreateTicket(ticket domain.Ticket) (domain.Ticket, error) {
-	query := `
-        INSERT INTO tickets (name, "desc", allocation)
-        VALUES ($1, $2, $3) RETURNING id
-    `
+	ticketModel := database.Ticket{
+		Name:       ticket.Name,
+		Desc:       ticket.Desc,
+		Allocation: ticket.Allocation,
+	}
 
-	err := r.DB.QueryRow(query, ticket.Name, ticket.Desc, ticket.Allocation).Scan(&ticket.ID)
-	if err != nil {
-		log.Printf("Error inserting ticket: %v", err)
+	if err := r.DB.Create(&ticketModel).Error; err != nil {
+		log.Printf("Error creating ticket: %v", err)
 		return domain.Ticket{}, err
 	}
 
+	ticket.ID = ticketModel.ID
 	return ticket, nil
 }
 
 func (r *TicketRepository) UpdateTicket(ticket domain.Ticket) error {
-	query := `
-        UPDATE tickets
-        SET name = $1, "desc" = $2, allocation = $3
-        WHERE id = $4
-    `
+	var ticketModel database.Ticket
+	if err := r.DB.First(&ticketModel, ticket.ID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("ticket with id %d not found", ticket.ID)
+		}
+		log.Printf("Error finding ticket: %v", err)
+		return err
+	}
 
-	res, err := r.DB.Exec(query, ticket.Name, ticket.Desc, ticket.Allocation, ticket.ID)
-	if err != nil {
+	ticketModel.Name = ticket.Name
+	ticketModel.Desc = ticket.Desc
+	ticketModel.Allocation = ticket.Allocation
+
+	if err := r.DB.Save(&ticketModel).Error; err != nil {
 		log.Printf("Error updating ticket: %v", err)
 		return err
-	}
-
-	rowsAffected, err := res.RowsAffected()
-	if err != nil {
-		log.Printf("Error getting rows affected: %v", err)
-		return err
-	}
-
-	if rowsAffected == 0 {
-		return fmt.Errorf("ticket with id %d not found", ticket.ID)
 	}
 
 	return nil

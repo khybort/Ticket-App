@@ -33,7 +33,7 @@ func NewTicketHandler(
 //	@Description	Retrieves all tickets
 //	@Tags			tickets
 //	@Produce		json
-//	@Success		200	{array}		domain.Ticket
+//	@Success		200	{array}		domain.TicketResponse
 //	@Failure		500	{object}	domain.JSONResponse	"Internal Server Error"
 //	@Router			/tickets [get]
 func (h *TicketHandler) GetAllTickets(c *gin.Context) {
@@ -43,7 +43,12 @@ func (h *TicketHandler) GetAllTickets(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, tickets)
+	var ticketResponses []domain.TicketResponse
+	for _, ticket := range tickets {
+		ticketResponses = append(ticketResponses, ticket.ToTicketResponse()) // Use the conversion method
+	}
+
+	c.JSON(200, ticketResponses)
 }
 
 // GetTicket godoc
@@ -52,7 +57,7 @@ func (h *TicketHandler) GetAllTickets(c *gin.Context) {
 //	@Tags			tickets
 //	@Param			id	path	int	true	"Ticket ID"
 //	@Produce		json
-//	@Success		200	{object}	domain.Ticket
+//	@Success		200	{object}	domain.TicketResponse
 //	@Failure		400	{object}	domain.JSONResponse	"Bad Request"
 //	@Failure		404	{object}	domain.JSONResponse	"Ticket not found"
 //	@Router			/tickets/{id} [get]
@@ -69,7 +74,8 @@ func (h *TicketHandler) GetTicket(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, ticket)
+	// Use the conversion method to get the response format
+	c.JSON(200, ticket.ToTicketResponse())
 }
 
 // CreateTicket godoc
@@ -78,12 +84,12 @@ func (h *TicketHandler) GetTicket(c *gin.Context) {
 //	@Tags			tickets
 //	@Accept			json
 //	@Produce		json
-//	@Param			ticket	body		domain.CreateTicketRequest	true	"Ticket creation data"
-//	@Success		201		{object}	domain.Ticket
+//	@Param			ticket	body		domain.TicketRequest	true	"Ticket creation data"
+//	@Success		201		{object}	domain.TicketResponse
 //	@Failure		400		{object}	domain.JSONResponse	"Invalid request body"
 //	@Router			/tickets [post]
 func (h *TicketHandler) CreateTicket(c *gin.Context) {
-	var createReq domain.CreateTicketRequest
+	var createReq domain.TicketRequest
 	if err := c.ShouldBindJSON(&createReq); err != nil {
 		c.JSON(400, domain.JSONResponse{Message: "Invalid request body"})
 		return
@@ -95,7 +101,8 @@ func (h *TicketHandler) CreateTicket(c *gin.Context) {
 		return
 	}
 
-	c.JSON(201, ticket)
+	// Use the conversion method to get the response format
+	c.JSON(201, ticket.ToTicketResponse())
 }
 
 // PurchaseTicket godoc

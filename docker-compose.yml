@@ -52,7 +52,6 @@ services:
       - development
     env_file:
       - ./api/.env.development
-    command: ["yarn", "start-dev"]
 
   # Production API Service (uses NGINX and production-ready build)
   api-prod:

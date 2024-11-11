@@ -4,10 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"api/internal/domain"
 	"api/internal/repositories"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestTicketCreateUseCase(t *testing.T) {
@@ -15,7 +16,7 @@ func TestTicketCreateUseCase(t *testing.T) {
 		mockRepo := new(repositories.MockTicketRepository)
 		useCase := NewTicketCreateUseCase(mockRepo)
 		
-		_, err := useCase.Execute(domain.CreateTicketRequest{})
+		_, err := useCase.Execute(domain.TicketRequest{})
 		assert.Error(t, err)
 	})
 
@@ -30,7 +31,7 @@ func TestTicketCreateUseCase(t *testing.T) {
 		}, nil)
 
 		useCase := NewTicketCreateUseCase(mockRepo)
-		ticket, err := useCase.Execute(domain.CreateTicketRequest{
+		ticket, err := useCase.Execute(domain.TicketRequest{
 			Name:       "Concert A",
 			Desc:       "Description A",
 			Allocation: 100,
@@ -47,7 +48,7 @@ func TestTicketCreateUseCase(t *testing.T) {
 		mockRepo.On("CreateTicket", mock.AnythingOfType("domain.Ticket")).Return(domain.Ticket{}, errors.New("repository error"))
 
 		useCase := NewTicketCreateUseCase(mockRepo)
-		_, err := useCase.Execute(domain.CreateTicketRequest{
+		_, err := useCase.Execute(domain.TicketRequest{
 			Name:       "Concert B",
 			Desc:       "Description B",
 			Allocation: 100,

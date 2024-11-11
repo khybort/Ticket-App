@@ -34,7 +34,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Ticket"
+                                "$ref": "#/definitions/domain.TicketResponse"
                             }
                         }
                     },
@@ -65,7 +65,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreateTicketRequest"
+                            "$ref": "#/definitions/domain.TicketRequest"
                         }
                     }
                 ],
@@ -73,7 +73,7 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.Ticket"
+                            "$ref": "#/definitions/domain.TicketResponse"
                         }
                     },
                     "400": {
@@ -108,7 +108,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Ticket"
+                            "$ref": "#/definitions/domain.TicketResponse"
                         }
                     },
                     "400": {
@@ -169,20 +169,6 @@
         }
     },
     "definitions": {
-        "domain.CreateTicketRequest": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "type": "integer"
-                },
-                "desc": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "domain.JSONResponse": {
             "type": "object",
             "properties": {
@@ -202,7 +188,21 @@
                 }
             }
         },
-        "domain.Ticket": {
+        "domain.TicketRequest": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "type": "integer"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TicketResponse": {
             "type": "object",
             "properties": {
                 "allocation": {

@@ -7,7 +7,7 @@ import (
 )
 
 type TicketCreateUseCase interface {
-	Execute(req domain.CreateTicketRequest) (domain.Ticket, error)
+	Execute(req domain.TicketRequest) (domain.Ticket, error)
 }
 
 type ticketCreateUseCase struct {
@@ -20,7 +20,7 @@ func NewTicketCreateUseCase(ticketRepo interfaces.TicketRepository) TicketCreate
 	}
 }
 
-func (uc *ticketCreateUseCase) Execute(req domain.CreateTicketRequest) (domain.Ticket, error) {
+func (uc *ticketCreateUseCase) Execute(req domain.TicketRequest) (domain.Ticket, error) {
 	if req.Name == "" || req.Desc == "" {
 		return domain.Ticket{}, errors.New("ticket name and description are required")
 	}
@@ -31,10 +31,10 @@ func (uc *ticketCreateUseCase) Execute(req domain.CreateTicketRequest) (domain.T
 		Allocation: req.Allocation,
 	}
 
-	createdTicket, err := uc.ticketRepo.CreateTicket(ticket)
+	ticketDTO, err := uc.ticketRepo.CreateTicket(ticket)
 	if err != nil {
 		return domain.Ticket{}, err
 	}
 
-	return createdTicket, nil
+	return ticketDTO, nil
 }

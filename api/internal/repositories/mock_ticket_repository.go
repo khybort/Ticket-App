@@ -1,8 +1,8 @@
 package repositories
 
 import (
-    "github.com/stretchr/testify/mock"
     "api/internal/domain"
+    "github.com/stretchr/testify/mock"
 )
 
 type MockTicketRepository struct {

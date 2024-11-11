@@ -32,7 +32,6 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-dev": "FAST_REFRESH=false react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",

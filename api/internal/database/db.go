@@ -1,29 +1,23 @@
 package database
 
 import (
-    "database/sql"
+	"api/internal/config"
+	"log"
     "fmt"
-    "log"
-    "api/internal/config"
 
-    _ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func ConnectDB(cfg *config.Config) (*sql.DB, error) {
-    connStr := fmt.Sprintf(
-        "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-        cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPass, cfg.DBName,
-    )
+// ConnectDB initializes the database connection using GORM
+func ConnectDB(cfg *config.Config) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
+		cfg.DBHost, cfg.DBUser, cfg.DBPass, cfg.DBName, cfg.DBPort)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+		return nil, err
+	}
 
-    db, err := sql.Open("postgres", connStr)
-    if err != nil {
-        return nil, fmt.Errorf("could not open database connection: %w", err)
-    }
-
-    if err := db.Ping(); err != nil {
-        return nil, fmt.Errorf("could not establish a connection to the database: %w", err)
-    }
-
-    log.Println("Connected to the database successfully.")
-    return db, nil
+	return db, nil
 }

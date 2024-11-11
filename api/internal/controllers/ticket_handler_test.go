@@ -26,7 +26,7 @@ type MockTicketCreateUseCase struct {
     mock.Mock
 }
 
-func (m *MockTicketCreateUseCase) Execute(req domain.CreateTicketRequest) (domain.Ticket, error) {
+func (m *MockTicketCreateUseCase) Execute(req domain.TicketRequest) (domain.Ticket, error) {
     args := m.Called(req)
     return args.Get(0).(domain.Ticket), args.Error(1)
 }
@@ -124,7 +124,7 @@ func TestGetTicket(t *testing.T) {
 func TestCreateTicket(t *testing.T) {
     mockCreate := new(MockTicketCreateUseCase)
 
-    createReq := domain.CreateTicketRequest{Name: "Concert A", Desc: "Desc A", Allocation: 100}
+    createReq := domain.TicketRequest{Name: "Concert A", Desc: "Desc A", Allocation: 100}
     ticket := domain.Ticket{ID: 1, Name: "Concert A", Desc: "Desc A", Allocation: 100}
 
     mockCreate.On("Execute", createReq).Return(ticket, nil)

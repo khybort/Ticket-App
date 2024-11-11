@@ -1,25 +1,21 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
-
-	"api/internal/config"
-	"api/internal/controllers"
-	"api/internal/database"
-	"api/internal/repositories"
-	"api/internal/usecases"
-	"api/middleware"
-
-	_ "api/docs"
-
+	
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
+	"gorm.io/gorm"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	"api/internal/config"
+	"api/internal/database"
+	"api/middleware"
+	"api/internal/routers"
+	_ "api/docs"
 )
 
 // @title			Ticket API
@@ -41,24 +37,12 @@ func main() {
 		log.Fatalf("Failed to seed database: %v", err)
 	}
 
-	ticketRepo := repositories.NewTicketRepo(db)
-	ticketGetAllUseCase := usecases.NewTicketGetAllUseCase(ticketRepo)
-	ticketCreateUseCase := usecases.NewTicketCreateUseCase(ticketRepo)
-	ticketGetByIDUseCase := usecases.NewTicketGetUseCase(ticketRepo)
-	ticketPurchaseUseCase := usecases.NewTicketPurchaseUseCase(ticketRepo)
-
-	ticketHandler := controllers.NewTicketHandler(
-		ticketGetAllUseCase,
-		ticketCreateUseCase,
-		ticketGetByIDUseCase,
-		ticketPurchaseUseCase,
-	)
-
 	r := gin.Default()
 	r.SetTrustedProxies([]string{cfg.UIAddress})
 
 	r.Use(middleware.LoggerMiddleware())
 	r.Use(middleware.ErrorHandlerMiddleware())
+
 	// CORS settings
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{cfg.UIAddress},
@@ -66,25 +50,7 @@ func main() {
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
-
-	// API routes
-	api := r.Group("/api/v1")
-	{
-		api.GET("/tickets", func(c *gin.Context) {
-			ticketHandler.GetAllTickets(c)
-		})
-		api.GET("/tickets/:id", func(c *gin.Context) {
-			ticketHandler.GetTicket(c)
-		})
-		api.POST("/tickets", func(c *gin.Context) {
-			ticketHandler.CreateTicket(c)
-		})
-		api.POST("/tickets/:id/purchases", func(c *gin.Context) {
-			ticketHandler.PurchaseTicket(c)
-		})
-	}
-
-	// Swagger documentation route
+	router.SetUpTicketRoutes(r, db)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	log.Printf("Backend listening on port %s...", cfg.Port)
@@ -96,8 +62,8 @@ const (
 	retryDelay = 5 * time.Second
 )
 
-func connectWithRetry(cfg *config.Config) *sql.DB {
-	var db *sql.DB
+func connectWithRetry(cfg *config.Config) *gorm.DB {
+	var db *gorm.DB
 	var err error
 
 	for attempts := 0; attempts < maxRetries; attempts++ {

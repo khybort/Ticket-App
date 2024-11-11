@@ -40,7 +40,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.Ticket"
+                                "$ref": "#/definitions/domain.TicketResponse"
                             }
                         }
                     },
@@ -71,7 +71,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreateTicketRequest"
+                            "$ref": "#/definitions/domain.TicketRequest"
                         }
                     }
                 ],
@@ -79,7 +79,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/domain.Ticket"
+                            "$ref": "#/definitions/domain.TicketResponse"
                         }
                     },
                     "400": {
@@ -114,7 +114,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/domain.Ticket"
+                            "$ref": "#/definitions/domain.TicketResponse"
                         }
                     },
                     "400": {
@@ -175,20 +175,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.CreateTicketRequest": {
-            "type": "object",
-            "properties": {
-                "allocation": {
-                    "type": "integer"
-                },
-                "desc": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
         "domain.JSONResponse": {
             "type": "object",
             "properties": {
@@ -208,7 +194,21 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Ticket": {
+        "domain.TicketRequest": {
+            "type": "object",
+            "properties": {
+                "allocation": {
+                    "type": "integer"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.TicketResponse": {
             "type": "object",
             "properties": {
                 "allocation": {

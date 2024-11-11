@@ -1,14 +1,5 @@
 basePath: /api/v1
 definitions:
-  domain.CreateTicketRequest:
-    properties:
-      allocation:
-        type: integer
-      desc:
-        type: string
-      name:
-        type: string
-    type: object
   domain.JSONResponse:
     properties:
       message:
@@ -21,7 +12,16 @@ definitions:
       user_id:
         type: string
     type: object
-  domain.Ticket:
+  domain.TicketRequest:
+    properties:
+      allocation:
+        type: integer
+      desc:
+        type: string
+      name:
+        type: string
+    type: object
+  domain.TicketResponse:
     properties:
       allocation:
         type: integer
@@ -56,7 +56,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.Ticket'
+              $ref: '#/definitions/domain.TicketResponse'
             type: array
         "500":
           description: Internal Server Error
@@ -75,14 +75,14 @@ paths:
         name: ticket
         required: true
         schema:
-          $ref: '#/definitions/domain.CreateTicketRequest'
+          $ref: '#/definitions/domain.TicketRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/domain.Ticket'
+            $ref: '#/definitions/domain.TicketResponse'
         "400":
           description: Invalid request body
           schema:
@@ -105,7 +105,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/domain.Ticket'
+            $ref: '#/definitions/domain.TicketResponse'
         "400":
           description: Bad Request
           schema:
