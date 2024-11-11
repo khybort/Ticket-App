@@ -1,0 +1,147 @@
+basePath: /api/v1
+definitions:
+  domain.CreateTicketRequest:
+    properties:
+      allocation:
+        type: integer
+      desc:
+        type: string
+      name:
+        type: string
+    type: object
+  domain.JSONResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  domain.PurchaseRequest:
+    properties:
+      quantity:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  domain.Ticket:
+    properties:
+      allocation:
+        type: integer
+      desc:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a simple API to manage tickets
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Ticket API
+  version: "1.0"
+paths:
+  /tickets:
+    get:
+      description: Retrieves all tickets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Ticket'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/domain.JSONResponse'
+      summary: Get all tickets
+      tags:
+      - tickets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new ticket
+      parameters:
+      - description: Ticket creation data
+        in: body
+        name: ticket
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Ticket'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/domain.JSONResponse'
+      summary: Create a ticket
+      tags:
+      - tickets
+  /tickets/{id}:
+    get:
+      description: Retrieves a ticket by ID
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Ticket'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/domain.JSONResponse'
+        "404":
+          description: Ticket not found
+          schema:
+            $ref: '#/definitions/domain.JSONResponse'
+      summary: Get a ticket
+      tags:
+      - tickets
+  /tickets/{id}/purchases:
+    post:
+      consumes:
+      - application/json
+      description: Purchases a ticket by ID
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Purchase request data
+        in: body
+        name: purchase
+        required: true
+        schema:
+          $ref: '#/definitions/domain.PurchaseRequest'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid request body or ticket ID
+          schema:
+            $ref: '#/definitions/domain.JSONResponse'
+      summary: Purchase a ticket
+      tags:
+      - tickets
+swagger: "2.0"

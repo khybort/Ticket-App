@@ -1,0 +1,99 @@
+services:
+  db:
+    image: postgres:13
+    container_name: db
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: ticketing_app
+
+    profiles:
+      - development
+      - production
+
+  # Development API Service (uses air and development-ready build)
+  api:
+    build: ./api
+    container_name: api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+      - ./api/.env.development:/app/.env
+    depends_on:
+      - db
+    networks:
+      - app-network
+    profiles:
+      - development
+    env_file:
+      - ./api/.env.development
+
+  # Development UI Service (uses webpack and development-ready build)
+  ui:
+    build:
+      context: ./ui
+    container_name: ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+      - ./ui/.env.development:/app/.env
+    depends_on:
+      - api
+    networks:
+      - app-network
+    profiles:
+      - development
+    env_file:
+      - ./api/.env.development
+    command: ["yarn", "start-dev"]
+
+  # Production API Service (uses NGINX and production-ready build)
+  api-prod:
+    build: ./api
+    container_name: api-prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+      - ./api/.env.production:/app/.env
+    depends_on:
+      - db
+    networks:
+      - app-network
+    profiles:
+      - production
+    env_file:
+      - ./api/.env.production
+
+  # Production UI Service (serves the built React app using NGINX)
+  ui-prod:
+    build:
+      context: ./ui
+    container_name: ui-prod
+    ports:
+      - "80:3000"
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
+      - ./api/.env.development:/app/.env
+    env_file:
+      - ./ui/.env.production
+    depends_on:
+      - api-prod
+    networks:
+      - app-network
+    profiles:
+      - production
+    expose:
+      - "80"
+
+networks:
+  app-network:
+    driver: bridge
